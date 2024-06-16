@@ -10,7 +10,6 @@ To build a movie ticket booking system(with the givend database(movies.db)). Thi
 - Manage relationships between tables
   - screening.id - movie.id(one to one)
   - tickets.id > screening.id(many to one)
-  - tickets.id > user.id(many to one)
 
 ## API requirements
 
@@ -22,9 +21,9 @@ To build a movie ticket booking system(with the givend database(movies.db)). Thi
 - movies
   - GET : /movies?id=1,2,3
 - tickets
-  - GET : /tickets?userId=100
+  - GET : /tickets
   - POST : /tickets
-    - body: user id, screening id
+    - body: screening id
 
 ## Technical requirements
 
