@@ -17,6 +17,7 @@ const schema = z.object({
 // parsers for validating and coercing data
 const insertable = schema.omit({
   id: true,
+  leftTickets: true,
 })
 //   const partial = insertable.partial()
 
