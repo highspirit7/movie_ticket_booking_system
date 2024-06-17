@@ -43,6 +43,18 @@ Before running the migrations, we need to create a database. We can do this by r
 npm run migrate:latest
 ```
 
+Can create migration file with teh following command(Need to enter the name of file as an argument):
+
+```bash
+npm run migrate:create
+```
+
+Can migrate one step down from the current status by running the command as below:
+
+```bash
+npm run migrate:onestepdown
+```
+
 ## Running the server
 
 In development mode:
