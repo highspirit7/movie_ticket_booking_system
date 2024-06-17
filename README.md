@@ -8,8 +8,8 @@ To build a movie ticket booking system(with the givend database(movies.db)). Thi
   - screening_time, number of tickets, number of tickets left
 - Create Tickets table
 - Manage relationships between tables
-  - screening.id - movie.id(one to one)
-  - tickets.id > screening.id(many to one)
+  - screenings.movie_id - movies.id(many to one)
+  - tickets.screening_id > screenings.id(many to one)
 
 ## API requirements
 
