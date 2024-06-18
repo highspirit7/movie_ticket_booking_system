@@ -1,6 +1,6 @@
 import { omit } from 'lodash/fp'
 import { parse, parseInsertable } from '../schema'
-import { fakeScreeningFull } from './utis'
+import { fakeScreeningFull } from './utils'
 
 it('parses a valid record', () => {
   const record = fakeScreeningFull()
