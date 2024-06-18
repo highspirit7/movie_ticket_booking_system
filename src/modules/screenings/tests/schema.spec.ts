@@ -1,34 +1,41 @@
 import { omit } from 'lodash/fp'
 import { parse, parseInsertable } from '../schema'
+import { fakeScreeningFull } from './utis'
 
-const record = {
-  id: 1,
-  allocatedTickets: 321,
-  leftTickets: 123,
-  screeningTime: '2025-02-02T11:11:00Z',
-  movieId: 36606,
-}
-
-// Generally, schemas are tested with a few examples of valid and invalid records.
 it('parses a valid record', () => {
+  const record = fakeScreeningFull()
   expect(parse(record)).toEqual(record)
 })
 
-it('throws an error due to empty/missing movieId (concrete)', () => {
-  const screeningEmptyMovieId = {
-    movieId: '',
-    allocatedTickets: 321,
-    screeningTime: '2025-02-02T11:11:00Z',
-  }
+it('throws an error due to zero/missing movieId', () => {
+  const screeningWithoutMovieId = omit(['movieId'], fakeScreeningFull())
+  const screeningEmptyMovieId = fakeScreeningFull({ movieId: 0 })
   expect(() => parseInsertable(screeningEmptyMovieId)).toThrow(/movieId/i)
+  expect(() => parseInsertable(screeningWithoutMovieId)).toThrow(/movieId/i)
 })
 
-// a more generic vesion of the above test, which makes
-// no assumptions about other properties
-it('throws an error due to empty/missing title (generic)', () => {
-  const screeningWithoutMovieId = omit(['movieId'], record)
-  const screeningEmptyMovieId = { ...record, movieId: '' }
+it('throws an error due to zero/missing allocatedTickets', () => {
+  const screeningWithoutAllocatedTickets = omit(
+    ['allocatedTickets'],
+    fakeScreeningFull()
+  )
+  const screeningZeroAllocatedTickets = {
+    ...fakeScreeningFull(),
+    allocatedTickets: 0,
+  }
 
-  expect(() => parse(screeningWithoutMovieId)).toThrow(/movieId/i)
-  expect(() => parse(screeningEmptyMovieId)).toThrow(/movieId/i)
+  expect(() => parse(screeningWithoutAllocatedTickets)).toThrow(
+    /allocatedTickets/i
+  )
+  expect(() => parse(screeningZeroAllocatedTickets)).toThrow(
+    /allocatedTickets/i
+  )
+})
+
+describe('parseInsertable', () => {
+  it('omits id', () => {
+    const parsed = parseInsertable(fakeScreeningFull())
+
+    expect(parsed).not.toHaveProperty('id')
+  })
 })
