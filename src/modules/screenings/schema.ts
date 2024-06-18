@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { Screenings } from '@/database'
+import { Screening } from '@/database'
 
-type Record = Screenings
+type Record = Screening
 
 const schema = z.object({
   id: z.coerce.number().int().positive(),
@@ -17,6 +17,7 @@ const schema = z.object({
 // parsers for validating and coercing data
 const insertable = schema.omit({
   id: true,
+  leftTickets: true,
 })
 //   const partial = insertable.partial()
 
