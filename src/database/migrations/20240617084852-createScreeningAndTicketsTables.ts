@@ -12,7 +12,7 @@ export async function up(db: Kysely<SqliteDatabase>): Promise<void> {
     .addColumn('allocated_tickets', 'integer', (c) => c.notNull())
     .addColumn('left_tickets', 'integer', (c) => c.notNull())
     .addColumn('movie_id', 'integer', (c) =>
-      c.notNull().references('movies.id')
+      c.references('movies.id').onDelete('cascade').notNull()
     )
     .execute()
 

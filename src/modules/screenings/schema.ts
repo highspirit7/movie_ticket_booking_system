@@ -11,9 +11,6 @@ const schema = z.object({
   movieId: z.number().int().positive(),
 })
 
-// create new viewing screenings for watching a movie that has a timestamp and a provided allocated number of tickets
-// get a list of screenings available for booking. Screenings should include session information (timestamp, number of tickets, number of tickets left) and movie: (title and year)
-
 // parsers for validating and coercing data
 const insertable = schema.omit({
   id: true,
