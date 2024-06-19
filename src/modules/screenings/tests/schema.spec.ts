@@ -9,8 +9,8 @@ it('parses a valid record', () => {
 
 it('throws an error due to zero/missing movieId', () => {
   const screeningWithoutMovieId = omit(['movieId'], fakeScreeningFull())
-  const screeningEmptyMovieId = fakeScreeningFull({ movieId: 0 })
-  expect(() => parseInsertable(screeningEmptyMovieId)).toThrow(/movieId/i)
+  const screeningZeroMovieId = fakeScreeningFull({ movieId: 0 })
+  expect(() => parseInsertable(screeningZeroMovieId)).toThrow(/movieId/i)
   expect(() => parseInsertable(screeningWithoutMovieId)).toThrow(/movieId/i)
 })
 
