@@ -15,20 +15,22 @@ afterEach(async () => {
   await db.deleteFrom('movies').execute()
 })
 
+const fakeMovieRecords = [
+  {
+    id: 1,
+    title: 'Sherlock Holmes',
+    year: 2009,
+  },
+  {
+    id: 101,
+    title: 'Stranger',
+    year: 2010,
+  },
+]
+
 describe('findAll', () => {
   it('should return all available screenings', async () => {
-    await createMovies([
-      {
-        id: 100,
-        title: 'Sherlock Holmes',
-        year: 2009,
-      },
-      {
-        id: 101,
-        title: 'Stranger',
-        year: 2010,
-      },
-    ])
+    await createMovies(fakeMovieRecords)
 
     await createScreenings([
       {
@@ -45,7 +47,9 @@ describe('findAll', () => {
       },
     ])
 
-    const availableScreenings = await repository.findAllAvailable()
+    const availableScreenings = await repository.findAll((eb) =>
+      eb('leftTickets', '>', 0)
+    )
 
     expect(availableScreenings).toEqual([
       {
@@ -54,6 +58,85 @@ describe('findAll', () => {
         leftTickets: 100,
         movieId: 101,
         screeningTime: '2025-02-02T11:22:00Z',
+        movieTitle: 'Stranger',
+        movieYear: 2010,
+      },
+    ])
+  })
+
+  it('should return all unavailable screenings', async () => {
+    await createMovies(fakeMovieRecords)
+
+    await createScreenings([
+      {
+        allocatedTickets: 100,
+        leftTickets: 0,
+        movieId: 100,
+        screeningTime: '2025-02-02T11:11:00Z',
+      },
+      {
+        allocatedTickets: 100,
+        leftTickets: 100,
+        movieId: 101,
+        screeningTime: '2025-02-02T11:22:00Z',
+      },
+    ])
+
+    const availableScreenings = await repository.findAll((eb) =>
+      eb('leftTickets', '=', 0)
+    )
+
+    expect(availableScreenings).toEqual([
+      {
+        id: expect.any(Number),
+        allocatedTickets: 100,
+        leftTickets: 0,
+        movieId: 100,
+        screeningTime: '2025-02-02T11:11:00Z',
+        movieTitle: 'Sherlock Holmes',
+        movieYear: 2009,
+      },
+    ])
+  })
+
+  it('should return all screenings', async () => {
+    await createMovies(fakeMovieRecords)
+
+    await createScreenings([
+      {
+        allocatedTickets: 100,
+        leftTickets: 0,
+        movieId: 100,
+        screeningTime: '2025-02-02T11:11:00Z',
+      },
+      {
+        allocatedTickets: 100,
+        leftTickets: 100,
+        movieId: 101,
+        screeningTime: '2025-02-02T11:22:00Z',
+      },
+    ])
+
+    const availableScreenings = await repository.findAll()
+
+    expect(availableScreenings).toEqual([
+      {
+        id: expect.any(Number),
+        allocatedTickets: 100,
+        leftTickets: 0,
+        movieId: 100,
+        screeningTime: '2025-02-02T11:11:00Z',
+        movieTitle: 'Sherlock Holmes',
+        movieYear: 2009,
+      },
+      {
+        id: expect.any(Number),
+        allocatedTickets: 100,
+        leftTickets: 100,
+        movieId: 101,
+        screeningTime: '2025-02-02T11:22:00Z',
+        movieTitle: 'Stranger',
+        movieYear: 2010,
       },
     ])
   })
