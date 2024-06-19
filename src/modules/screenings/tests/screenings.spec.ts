@@ -55,7 +55,9 @@ describe('GET', () => {
       .get('/screenings?available=true')
       .expect(200)
 
-    expect(body).toEqual([screeningMatcher()])
+    expect(body).toEqual([
+      { ...screeningMatcher(), movieTitle: 'Sherlock Holmes', movieYear: 2009 },
+    ])
   })
 
   it('should return a list of unavailable screenings', async () => {
@@ -71,10 +73,14 @@ describe('GET', () => {
       .expect(200)
 
     expect(body).toEqual([
-      screeningMatcher({
+      {
+        ...screeningMatcher({
         leftTickets: 0,
         screeningTime: '2024-10-10T10:00:00Z',
       }),
+        movieTitle: 'Sherlock Holmes',
+        movieYear: 2009,
+      },
     ])
   })
 
@@ -89,11 +95,15 @@ describe('GET', () => {
     const { body } = await supertest(app).get('/screenings').expect(200)
 
     expect(body).toEqual([
-      screeningMatcher(),
-      screeningMatcher({
+      { ...screeningMatcher(), movieTitle: 'Sherlock Holmes', movieYear: 2009 },
+      {
+        ...screeningMatcher({
         leftTickets: 0,
         screeningTime: '2024-10-10T10:00:00Z',
       }),
+        movieTitle: 'Sherlock Holmes',
+        movieYear: 2009,
+      },
     ])
   })
 })
