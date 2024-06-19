@@ -1,6 +1,7 @@
 import supertest from 'supertest'
 import createTestDatabase from '@tests/utils/createTestDatabase'
 import { createFor } from '@tests/utils/records'
+import { omit } from 'lodash/fp'
 import { fakeScreening, screeningMatcher } from './utils'
 import createApp from '@/app'
 
@@ -75,9 +76,9 @@ describe('GET', () => {
     expect(body).toEqual([
       {
         ...screeningMatcher({
-        leftTickets: 0,
-        screeningTime: '2024-10-10T10:00:00Z',
-      }),
+          leftTickets: 0,
+          screeningTime: '2024-10-10T10:00:00Z',
+        }),
         movieTitle: 'Sherlock Holmes',
         movieYear: 2009,
       },
@@ -98,12 +99,67 @@ describe('GET', () => {
       { ...screeningMatcher(), movieTitle: 'Sherlock Holmes', movieYear: 2009 },
       {
         ...screeningMatcher({
-        leftTickets: 0,
-        screeningTime: '2024-10-10T10:00:00Z',
-      }),
+          leftTickets: 0,
+          screeningTime: '2024-10-10T10:00:00Z',
+        }),
         movieTitle: 'Sherlock Holmes',
         movieYear: 2009,
       },
     ])
+  })
+})
+
+describe('POST', () => {
+  it('should return 400 if movieId is missing', async () => {
+    const { body } = await supertest(app)
+      .post('/screenings')
+      .send(omit(['movieId'], fakeScreening()))
+      .expect(400)
+
+    expect(body.error.message).toMatch(/movieId/i)
+  })
+
+  it('should return 400 if allocatedTickets is missing', async () => {
+    // ACT (When we request...)
+    const { body } = await supertest(app)
+      .post('/screenings')
+      .send(omit(['allocatedTickets'], fakeScreening()))
+      .expect(400)
+
+    // ASSERT (Then we should get...)
+    expect(body.error.message).toMatch(/allocatedTickets/i)
+  })
+
+  it('should return 400 if screeningTime is missing', async () => {
+    // ACT (When we request...)
+    const { body } = await supertest(app)
+      .post('/screenings')
+      .send(omit(['screeningTime'], fakeScreening()))
+      .expect(400)
+
+    // ASSERT (Then we should get...)
+    expect(body.error.message).toMatch(/screeningTime/i)
+  })
+
+  it('does not allow to create an screening with an empty screeningTime', async () => {
+    // ACT (When we request...)
+    const { body } = await supertest(app)
+      .post('/screenings')
+      .send(fakeScreening({ screeningTime: '' }))
+      .expect(400)
+
+    // ASSERT (Then we should get...)
+    expect(body.error.message).toMatch(/screeningTime/i)
+  })
+
+  it('should return 201 and created screening record', async () => {
+    await createMovies(fakeMovieRecords)
+
+    const { body } = await supertest(app)
+      .post('/screenings')
+      .send(omit(['leftTickets'], fakeScreening()))
+      .expect(201)
+
+    expect(body).toEqual(screeningMatcher({ leftTickets: 100 }))
   })
 })
