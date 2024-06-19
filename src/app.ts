@@ -2,6 +2,7 @@ import express from 'express'
 import jsonErrorHandler from './middleware/jsonErrors'
 import { type Database } from './database'
 import movies from '@/modules/movies/controller'
+import screenings from '@/modules/screenings/controller'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function createApp(db: Database) {
@@ -11,7 +12,7 @@ export default function createApp(db: Database) {
 
   // register your controllers here
   app.use('/movies', movies(db))
-
+  app.use('/screenings', screenings(db))
   app.use(jsonErrorHandler)
 
   return app
