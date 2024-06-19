@@ -21,7 +21,7 @@ export async function up(db: Kysely<SqliteDatabase>): Promise<void> {
     .ifNotExists()
     .addColumn('id', 'integer', (c) => c.primaryKey().autoIncrement().notNull())
     .addColumn('screening_id', 'integer', (c) =>
-      c.notNull().references('screenings.id')
+      c.references('screenings.id').onDelete('cascade').notNull()
     )
     .addColumn('created_at', 'text', (col) =>
       col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull()
