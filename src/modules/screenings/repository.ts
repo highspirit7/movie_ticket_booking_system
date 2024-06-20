@@ -6,11 +6,13 @@ import type {
 } from 'kysely'
 import { keys } from './schema'
 import type { Database, Screening, DB } from '@/database'
+import BadRequest from '@/utils/errors/BadRequest'
 
 const TABLE = 'screenings'
 type TableName = typeof TABLE
 type Row = Screening
 type RowWithMovie = Row & { movieTitle: string; movieYear: number | null }
+type RowRelationshipsIds = Pick<Row, 'movieId'>
 type RowWithoutId = Omit<Row, 'id'>
 type RowInsert = Insertable<RowWithoutId>
 // type RowUpdate = Updateable<RowWithoutId>
@@ -49,6 +51,36 @@ export default (db: Database) => ({
             'movies.year as movieYear',
           ])
           .execute(),
-  create: async (record: RowInsert): Promise<RowSelect | undefined> =>
-    db.insertInto(TABLE).values(record).returning(keys).executeTakeFirst(),
+  create: async (record: RowInsert): Promise<RowSelect | undefined> => {
+    await assertRelationshipsExist(db, record)
+
+    return db
+      .insertInto(TABLE)
+      .values(record)
+      .returning(keys)
+      .executeTakeFirst()
+  },
 })
+
+/**
+ * Enforce that provided relationships reference existing keys.
+ */
+async function assertRelationshipsExist(
+  db: Database,
+  record: Partial<RowRelationshipsIds>
+) {
+  const { movieId } = record
+
+  // we would perform both checks in a single Promise.all
+  if (movieId) {
+    const movie = await db
+      .selectFrom('movies')
+      .select('id')
+      .where('id', '=', movieId)
+      .executeTakeFirst()
+
+    if (!movie) {
+      throw new BadRequest('Referenced movie does not exist')
+    }
+  }
+}
