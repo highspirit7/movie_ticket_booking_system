@@ -103,7 +103,7 @@ describe('create', () => {
     expect(ticket).toEqual({
       id: expect.any(Number),
       screeningId: expect.any(Number),
-      createdAt: expect.any(Date),
+      createdAt: expect.any(String),
     })
 
     const ticketsInDatabase = await selectTickets()
