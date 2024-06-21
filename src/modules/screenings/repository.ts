@@ -51,6 +51,22 @@ export default (db: Database) => ({
             'movies.year as movieYear',
           ])
           .execute(),
+  findById(id: number): Promise<RowSelect | undefined> {
+    return db
+      .selectFrom(TABLE)
+      .innerJoin('movies', 'screenings.movieId', 'movies.id')
+      .select([
+        'screenings.id as id',
+        'allocatedTickets',
+        'leftTickets',
+        'screeningTime',
+        'movieId',
+        'movies.title as movieTitle',
+        'movies.year as movieYear',
+      ])
+      .where('screenings.id', '=', id)
+      .executeTakeFirst()
+  },
   create: async (record: RowInsert): Promise<RowSelect | undefined> => {
     await assertRelationshipsExist(db, record)
 

@@ -1,13 +1,11 @@
 import { Insertable, Selectable } from 'kysely'
 import { keys } from './schema'
 import type { Database, Ticket } from '@/database'
-import BadRequest from '@/utils/errors/BadRequest'
 
 const TABLE = 'tickets'
 // type TableName = typeof TABLE
 type Row = Ticket
 type RowWithoutId = Omit<Row, 'id'>
-type RowRelationshipsIds = Pick<Row, 'screeningId'>
 type RowInsert = Insertable<RowWithoutId>
 // type RowUpdate = Updateable<RowWithoutId>
 type RowSelect = Selectable<
@@ -24,6 +22,7 @@ export default (db: Database) => ({
         'tickets.id as id',
         'screenings.screeningTime',
         'movies.title as movieTitle',
+        'movies.year as movieYear',
         'tickets.screeningId',
         'tickets.createdAt',
       ])
@@ -44,9 +43,8 @@ export default (db: Database) => ({
       .where('id', '=', id)
       .executeTakeFirst()
   },
-  async create(record: RowInsert): Promise<Selectable<Row> | undefined> {
-    await assertRelationshipsExist(db, record)
-
+  create(record: RowInsert): Promise<Selectable<Row> | undefined> {
+    // TODO : 해당 screening leftTickets -1 해주어야 한다.
     return db
       .insertInto(TABLE)
       .values(record)
@@ -54,25 +52,3 @@ export default (db: Database) => ({
       .executeTakeFirst()
   },
 })
-
-/**
- * Enforce that provided relationships reference existing keys.
- */
-async function assertRelationshipsExist(
-  db: Database,
-  record: Partial<RowRelationshipsIds>
-) {
-  const { screeningId } = record
-
-  if (screeningId) {
-    const screening = await db
-      .selectFrom('screenings')
-      .select('id')
-      .where('id', '=', screeningId)
-      .executeTakeFirst()
-
-    if (!screening) {
-      throw new BadRequest('Referenced movie does not exist')
-    }
-  }
-}
