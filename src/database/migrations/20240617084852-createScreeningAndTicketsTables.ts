@@ -1,7 +1,7 @@
 /**
  * Migration: 20240617084852-createScreeningAndTicketsTables.ts
  */
-import { Kysely, SqliteDatabase, sql } from 'kysely'
+import { Kysely, SqliteDatabase } from 'kysely'
 
 export async function up(db: Kysely<SqliteDatabase>): Promise<void> {
   await db.schema
@@ -21,10 +21,10 @@ export async function up(db: Kysely<SqliteDatabase>): Promise<void> {
     .ifNotExists()
     .addColumn('id', 'integer', (c) => c.primaryKey().autoIncrement().notNull())
     .addColumn('screening_id', 'integer', (c) =>
-      c.notNull().references('screenings.id')
+      c.references('screenings.id').onDelete('cascade').notNull()
     )
     .addColumn('created_at', 'text', (col) =>
-      col.defaultTo(sql`CURRENT_TIMESTAMP`).notNull()
+      col.defaultTo(new Date().toISOString()).notNull()
     )
     .execute()
 }
