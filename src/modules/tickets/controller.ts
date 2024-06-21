@@ -31,7 +31,14 @@ export default (db: Database) => {
             'The selected screening has no available tickets'
           )
 
-        return tickets.create(body)
+        const newlyCreatedTicket = await tickets.create(body)
+
+        if (newlyCreatedTicket) {
+          await screenings.update(newlyCreatedTicket.screeningId, {
+            leftTickets: screening.leftTickets - 1,
+          })
+        }
+        return newlyCreatedTicket
       }, StatusCodes.CREATED)
     )
 

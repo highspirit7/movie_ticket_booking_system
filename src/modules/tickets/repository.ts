@@ -44,7 +44,6 @@ export default (db: Database) => ({
       .executeTakeFirst()
   },
   create(record: RowInsert): Promise<Selectable<Row> | undefined> {
-    // TODO : 해당 screening leftTickets -1 해주어야 한다.
     return db
       .insertInto(TABLE)
       .values(record)

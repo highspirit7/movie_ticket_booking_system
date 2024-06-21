@@ -3,6 +3,7 @@ import type {
   Insertable,
   Selectable,
   SqlBool,
+  Updateable,
 } from 'kysely'
 import { keys } from './schema'
 import type { Database, Screening, DB } from '@/database'
@@ -15,15 +16,15 @@ type RowWithMovie = Row & { movieTitle: string; movieYear: number | null }
 type RowRelationshipsIds = Pick<Row, 'movieId'>
 type RowWithoutId = Omit<Row, 'id'>
 type RowInsert = Insertable<RowWithoutId>
-// type RowUpdate = Updateable<RowWithoutId>
+type RowUpdate = Updateable<RowWithoutId>
 type RowSelect = Selectable<Row>
 type RowSelectWithMovie = Selectable<RowWithMovie>
 
 export default (db: Database) => ({
-  findAll: (
+  findAll(
     expression?: ExpressionOrFactory<DB, TableName, SqlBool>
-  ): Promise<RowSelectWithMovie[]> =>
-    expression
+  ): Promise<RowSelectWithMovie[]> {
+    return expression
       ? db
           .selectFrom(TABLE)
           .innerJoin('movies', 'screenings.movieId', 'movies.id')
@@ -50,7 +51,8 @@ export default (db: Database) => ({
             'movies.title as movieTitle',
             'movies.year as movieYear',
           ])
-          .execute(),
+          .execute()
+  },
   findById(id: number): Promise<RowSelect | undefined> {
     return db
       .selectFrom(TABLE)
@@ -67,12 +69,24 @@ export default (db: Database) => ({
       .where('screenings.id', '=', id)
       .executeTakeFirst()
   },
-  create: async (record: RowInsert): Promise<RowSelect | undefined> => {
+  async create(record: RowInsert): Promise<RowSelect | undefined> {
     await assertRelationshipsExist(db, record)
 
     return db
       .insertInto(TABLE)
       .values(record)
+      .returning(keys)
+      .executeTakeFirst()
+  },
+  update(id: number, partial: RowUpdate): Promise<RowSelect | undefined> {
+    if (Object.keys(partial).length === 0) {
+      return this.findById(id)
+    }
+
+    return db
+      .updateTable(TABLE)
+      .set(partial)
+      .where('id', '=', id)
       .returning(keys)
       .executeTakeFirst()
   },

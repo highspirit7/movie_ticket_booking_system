@@ -187,3 +187,22 @@ describe('create', () => {
     expect(screeningsInDatabase).toEqual([screening])
   })
 })
+
+describe('update', () => {
+  it('should update left tickets of screening', async () => {
+    await createMovies(fakeMovieRecords)
+
+    const [screening] = await createScreenings(fakeScreening())
+
+    const updatedScreening = await repository.update(screening.id, {
+      leftTickets: screening.leftTickets - 1,
+    })
+
+    // ASSERT (Then we should get...)
+    expect(updatedScreening).toMatchObject(
+      screeningMatcher({
+        leftTickets: screening.leftTickets - 1,
+      })
+    )
+  })
+})
