@@ -11,10 +11,8 @@ it('throws an error due to zero/missing screeningId', () => {
   const ticketWithoutScreeningId = omit(['screeningId'], fakeTicketFull())
   const ticketZeroScreeningId = fakeTicketFull({ screeningId: 0 })
 
-  expect(() => parseInsertable(ticketWithoutScreeningId)).toThrow(
-    /screeningId/i
-  )
-  expect(() => parseInsertable(ticketZeroScreeningId)).toThrow(/screeningId/i)
+  expect(() => parse(ticketWithoutScreeningId)).toThrow(/screeningId/i)
+  expect(() => parse(ticketZeroScreeningId)).toThrow(/screeningId/i)
 })
 
 describe('parseInsertable', () => {

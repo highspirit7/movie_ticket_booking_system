@@ -10,8 +10,8 @@ it('parses a valid record', () => {
 it('throws an error due to zero/missing movieId', () => {
   const screeningWithoutMovieId = omit(['movieId'], fakeScreeningFull())
   const screeningZeroMovieId = fakeScreeningFull({ movieId: 0 })
-  expect(() => parseInsertable(screeningZeroMovieId)).toThrow(/movieId/i)
-  expect(() => parseInsertable(screeningWithoutMovieId)).toThrow(/movieId/i)
+  expect(() => parse(screeningZeroMovieId)).toThrow(/movieId/i)
+  expect(() => parse(screeningWithoutMovieId)).toThrow(/movieId/i)
 })
 
 it('throws an error due to zero/missing allocatedTickets', () => {
