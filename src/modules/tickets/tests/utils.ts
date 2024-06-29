@@ -9,7 +9,7 @@ export const fakeTicket = (
   ...overrides,
 })
 
-export const TicketMatcher = (overrides: Partial<Insertable<Ticket>> = {}) => ({
+export const ticketMatcher = (overrides: Partial<Insertable<Ticket>> = {}) => ({
   id: expect.any(Number),
   createdAt: expect.any(String),
   ...overrides, // for id
